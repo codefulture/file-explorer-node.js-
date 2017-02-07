@@ -34,10 +34,8 @@ fs.readdir(process.cwd(),function(err,files){
 	}
 	file(0);
 });
-*/
-
+*///完整代码
 var fs = require('fs'),stdin = process.stdin,stdout = process.stdout
-
 fs.readdir(process.cwd(),function(err,files){
 	console.log('');		//输出友好
 	if(!files.length){		//如果files数组为空，告知用户当前目录没有文件
