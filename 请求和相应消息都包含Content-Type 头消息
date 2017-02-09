@@ -1,0 +1,29 @@
+var http = require('http');
+http.createServer(function (req, res) {
+	// 发送 HTTP 头部 
+	// HTTP 状态值: 200 : OK
+	// 内容类型: text/plain
+	if('/' == req.url){
+		res.writeHead(200, {'Content-Type': 'text/html'});
+		res.end([
+			'<form method="POST" action="/url">',
+			'<h1>My form</h1>',
+			'<fieldset>',
+			'<label>Personal information</label>',
+			'<p>What is your name?</p>',
+			'<input type="text" name="name">',
+			'<p><button>Submit</button></p>',
+			'</form>'
+			].join(''));
+		//实例在说，请求消息和相应消息都包含Content-Type 头消息
+		}else if('/url' == req.url && 'POST' == req.method){
+			var body = '';
+			req.on('data',function(chunk){
+				body += chunk;		//chunk等于'name="输入的内容"'
+			});
+			req.on('end',function(){
+				res.writeHead(200,{'Content-Type':'text/html'});
+				res.end('<p>Content-Type: ' + req.headers['content-type'] + '</p>' + '<p>Data:</p><pre>' + body + '</pre>');
+			});
+		}
+}).listen(3000);
