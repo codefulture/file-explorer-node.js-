@@ -1,12 +1,13 @@
 //文件server.js
 var http = require('http'),fs = require('fs');
-var server = http.createServer(function(req,res){
-	if('GET' == req.method && '/image' == req.url.substr(0,6)&& '.jpg' == req.url.substr(-4)){
+var server = http.createServer(function(req,res){//server回调函数检查url是否与服务器目录下的文件匹配，匹配则显示文件
+if('GET' == req.method && '/image' == req.url.substr(0,6)&& '.jpg' == req.url.substr(-4)){
 		fs.stat(__dirname + req.url,function(err,stat){
 			if(err || !stat.isFile()){
-				res.writeHead(404);
-				res.end('Not Found');
-				return ;
+			//stat.isFile检查文件是否存在
+			res.writeHead(404);
+			res.end('Not Found');
+			return ;
 			}
 		serve(__dirname + req.url,'application/jpg');
 		});
@@ -17,8 +18,9 @@ var server = http.createServer(function(req,res){
 		res.end('Not found');
 	}
 function serve(path,type){
+//server方法根据文件路径来获取文件内容，并增加不可缺少的content-type头文件
 	res.writeHead(200,{'Content-Type':type});
-	fs.createReadStream(path).pipe(res);
+	fs.createReadStream(path).pipe(res);//将文件系统流接入到http响应流中
 }
 });
 server.listen(3000);
