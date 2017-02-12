@@ -1,0 +1,53 @@
+//website文件夹中有image文件夹和index，html文件
+//server.js文件
+var connect = require('connect');
+var server = connect.createServer();
+server.use(connect.static(__dirname + '/website'));
+server.listen(3000);
+server.use(function(req,res,next){
+	console.log('%s %s ',req.method,req.url);
+	next();
+});
+server.use(function(req,res,next){
+	if('GET' == req.method && '/image' == req.url.substr(0,6)){
+		//托管图片
+	}else{
+		//件给其他中间件去处理
+		next();
+	}
+});
+server.use(function(req,res,next){
+	if('GET' == req.method && '/' ==req.url){
+		//响应index文件
+	}else{
+		next();
+	}
+});
+server.use(function(req,res,next){
+	//最后一个中间件，到这里，就意味着无能为力，只能返回404
+	res.writeHead(404);
+	res.end('Not Found');
+});
+//index.html文件
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<img src="./image/1.jpg" alt="">
+	<img src="./image/2.jpg" alt="">
+	<img src="./image/3.jpg" alt="">
+	<img src="./image/4.jpg" alt="">
+</body>
+</html>
+
+//package.json文件
+{
+	"name": "my-website",
+	"version": "0.0.1",
+	"dependencies": {	//声明对connect模块的依赖
+		"connect": "3.5.0"
+	}
+}
