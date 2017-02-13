@@ -1,0 +1,83 @@
+var connect = require('connect');
+var http = require('http');
+ 
+var app = connect();
+
+//1
+// gzip/deflate outgoing responses 
+var compression = require('compression');
+app.use(compression());
+
+//2
+Use middleware
+
+The core of Connect is "using" middleware. 
+Middleware are added as a "stack" where incoming requests will execute each 
+middleware one-by-one until a middleware does not call next() within it.
+
+app.use(function middleware1(req, res, next) {
+  // middleware 1
+  next();
+});
+app.use(function middleware2(req, res, next) {
+  // middleware 2
+  next();
+});
+
+//3
+Mount middleware
+
+The .use() method also takes an optional path string that is matched against the beginning of the incoming request URL.
+This allows for basic routing.
+
+app.use('/foo', function fooMiddleware(req, res, next) {
+  // req.url starts with "/foo"
+  next();
+});
+app.use('/bar', function barMiddleware(req, res, next) {
+  // req.url starts with "/bar"
+  next();
+});
+
+//4
+Error middleware
+
+There are special cases of "error-handling" middleware. 
+There are middleware where the function takes exactly 4 arguments. When a middleware passes an error to next, 
+the app will proceed to look for the error middleware that was declared after that middleware and invoke it, 
+skipping any error middleware above that middleware and any non-error middleware below.
+
+//5
+// regular middleware
+app.use(function (req, res, next) {
+  // i had an error
+  next(new Error('boom!'));
+});
+
+//6
+// error middleware for errors that occurred in middleware
+// declared before this
+app.use(function onerror(err, req, res, next) {
+  // an error occurred!
+});
+
+//7会话
+// store session state in browser cookie 
+var cookieSession = require('cookie-session');
+app.use(cookieSession({
+    keys: ['secret1', 'secret2']
+}));
+
+//8
+// parse urlencoded request bodies into req.body 
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended: false}));
+
+//9
+// respond to all requests 
+app.use(function(req, res){
+  res.end('Hello from Connect!\n');
+});
+ 
+//create node.js http server and listen on port 
+http.createServer(app).listen(3000);
