@@ -53,3 +53,7 @@ var server = connect(connect.logger('dev')
 		}
 	}
 	);
+//RedisStore（持久化session数据）
+var connect = require('connect'),
+RedisStore = require('connect-redis')(connect);
+server.use(connect.session({store: new RedisStore,secret:'my secret'}))
