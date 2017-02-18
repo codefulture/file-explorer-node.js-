@@ -1,0 +1,29 @@
+1.在定义路由时，可以是哟个自定义参数：
+app.get('/post/:name',function(){
+  //...
+})
+上述代码中，name变量值会注入req.params对象上。
+比如，当通过浏览器访问'post/hello-world'时,req.params对象会变为如下形式：
+app.get('/post/:name',function(){
+  //req.params.name == "hello-world"
+})
+
+还可以通过在变量后添加问号（?）来表示该变量是可选的。要匹配可以采用如下方式：
+app.get('/post/:name?',function(req,res,next){
+  //this will match for /psot and /post/a-post-here
+})
+
+像这样定义参数的路由，内部会当正则表达式处理。也就是说，定义路由也可以直接使用RegExp对象。
+比如，只想匹配字母、数字以及中划线的话：
+app.get(/^\/post\/{[a-z\d\-]*}/,function(req,res,next){
+  //req.params contains the matches set by the RegExp capture groups
+})
+
+和中间件一样，在路由处理程序中也可以使用next。
+即使当一个路由匹配并得到处理，还是可以强制Express去继续匹配其他路由。
+比如，让路由只接收以'h'开头的参数：
+app.get('/psot/:name',function(req,res,next){
+  if('h' !=req.params.name[0])
+    return next();
+    //...
+});
