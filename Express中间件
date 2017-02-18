@@ -1,0 +1,45 @@
+Express是构建于Connect之上的，所以创建express服务器时可以使用connect的中间件。
+1.托管images/目录下的的图片，就可以下像这样使用static中间件：
+app.use(express.static(__dirname+'/images'));
+
+2.使用connect的session:
+app.use(express.cookiePareser());
+app.use(express.session());
+
+和全局中间件（针对每个请求）不同，Express还允许只在特定匹配到的路由中才使用中间件。
+比如：你需要检查用户是否已经登录，并且这部分检查只在特定受保护的路由中进行。
+这个时候就可以定义一个secure中间件，判断req.session.logged_in不为true时发送403 NOT Authorized状态码.
+function secure(req,res,next){
+  if(!req.session.logged_in){
+  return res.end(403);
+  }
+  next();
+} 
+
+然后，将它应用到对应的路由中：
+app.get('/home',function(){
+  //accessible to everyone
+});
+app.get('/financials',secure,function(){
+  //secure
+});
+app.get('/about',function(){
+  //accessible to everyone
+});
+app.get('/roadmap',secure,funciton(){
+  //sevure
+});
+
+还可以为路由定义多个中间件：
+app.post('/route',a,b,c,function(){
+  //...
+});
+
+在中间件中调用next就可以跳过该路由的其他中间件，这样Express就会紧接着在下一给路由中做相应处理。
+function secure(req,res,next){
+  if(!req.session.logged_in){
+  return next('route');
+  }
+  next();
+}
+通过调用next('route'),就能确保当前路由会被跳过
