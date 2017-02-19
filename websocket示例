@@ -1,0 +1,49 @@
+server.js文件
+var express = require('express'),
+	http = require('http'),
+	wsio = require('websocket.io');
+var EventEmitter = require('events').EventEmitter;
+var event = new EventEmitter();
+var app = express.createServer();
+var ws = wsio.attach(app);
+app.use(express.static('public'));
+ws.on('connection',function(socket){
+	socket.on('message',function(msg){
+		console.log('\033[96mgot:\033[39m'+msg);
+		socket.send('pong');
+	});
+	//event.emit('message');
+});
+//event.emit('connection');
+app.listen(3000);
+
+index.js文件
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script>
+		var lastMessage;
+		window.onload = function(){
+			var ws = new WebSocket('ws:localhost:3000');
+			ws.onopen = function(){
+				ping();
+			};
+			es.onmessage = function(ev){
+				console.log('got:' + ev.data);
+				document.getElementById('latency').innerHTML = new Data - lastMessage;
+				ping();
+			};
+			function ping(){
+				lastMessage += new Data;
+				ws.send('ping');
+			};
+		}
+	</script>
+</head>
+<body>
+	<h1>WebSocket Echo</h1>
+	<h2>Latency: <span id="latency"></span></h2>
+</body>
+</html>
