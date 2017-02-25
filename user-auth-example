@@ -1,0 +1,144 @@
+package.json文件
+{
+	"name": "user-auth-example",
+	"version": "0.0.1",
+	"dependencies": {
+		"express": "4.14.1",
+		"mongodb": "2.2.24",
+		"jada": "1.11.0"
+	}
+}
+
+index.jade文件
+extends layout
+block body
+if(authenticated)
+  p Welcome back, #{me.first}
+  a(href="/logout") Logout
+else
+  p Welcome new visitor
+  ul
+    li: a(href="/login") Login
+    li: a(href="/signup") Signup
+    
+layout.jade文件
+doctype html
+html
+  head
+    title MongoDB example
+  body
+    h1 My first MongoDB app
+    hr
+    block body
+
+app.js文件
+var express = require('express'),
+	mongodb = require('mongodb');
+var bodyParser = require('body-parser'),
+	cookieParser = require('cookie-parser'),
+	session = require('express-session');
+var app = express();
+app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(session({secret: 'my secret'}));
+app.set('views','./views');
+app.set('view engine','jade');
+app.engine('jade', require('jade').__express);
+app.set('view options',{layout:false});
+/*
+*默认路由
+*/
+app.get('/',function(req,res){
+	res.render('index',{authenticated:false});
+});
+/*
+*登录路由
+*/
+app.get('/login',function(req,res){
+	res.render('login');
+});
+/*
+*注册路由
+*/
+app.get('/signup',function(req,res){
+	res.render('signup');
+});
+app.listen(3000);
+
+server.js文件
+var mongodb = require('mongodb');
+var server = new mongodb.Server('127.0.0.1',27017);
+new mongodb.Db('my-website',server).open(function(err,client){
+	if(err) {
+		throw err;
+	}else{	
+	console.log('\033[96m + \033[39m] connected to mongodb');
+		}
+	app.users = new monodb.collection(client,'users');
+	app.listen(3000,function(){
+		console.log('\033[96m + \033[39m app listening on *:3000');
+	});
+});
+csollection.insert({my:'document'},function(err,docs){
+});
+/*
+*处理注册的路由
+*/
+app.post('/signup',function(req,res,next){
+	app.users.insert(req.body.user,function(err,doc){
+		if(err)
+			return next(err);
+		res.redirect('/login/'+doc[0].email);
+	});
+});
+/*
+*登录处理路由
+*/
+app.post('/login',function(req,res){
+	app.users.findOne({email:req.body.user.email,password:req.body.user.password},function(err,doc){
+	if(err) return next(err);
+	if(!doc) return res.send('<p>User not found. Go back and try again</p>');
+		req.session.loggedIn = doc._id.toString();
+		res.redirect('/');
+	});
+});
+/*
+*登录路由
+*/
+app.get('/login/:signupEmail',function(req,res){
+	res.render('login',{signupEmail:req.params.signupEmail});
+});
+client.ensureIndex('users','email',function(err){
+	if(err)
+		throw err;
+	client.ensureIndex('user','password',function(err){
+		if(err)
+			throw err;
+		console.log('\033[39m ensured indexes');
+		app.listen(3000,function(){
+			console.log('\033[96m + \033[39m app listening on :3000');
+		});
+	});
+});
+/*
+*登出路由
+*/
+app.get('/logout',function(req,res){
+	req.session.loggedIn = null;
+	res.redirect('/');
+});
+/*
+*身份验证中间件
+*/
+app.use(function(req,res,next){
+	if(req.session.loggedIn){
+		res.local.findOne({_id:{$oid:req.session.loggedIn}},function(err,doc){
+			if(err) return next(err);
+			res.local('me',doc);
+			next();
+		});
+	}else{
+		res.local('authenticated',false);
+		next();
+	}
+});
